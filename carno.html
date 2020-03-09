@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>汽車、機車，車牌號碼吉兇選號建議</title>
+<meta name="Keywords" content="車牌號碼,幸運號碼,汽車,機車" />
+<meta name="Description" content="" />
+
+<!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<style type="text/css">
+#top{ padding: 10px; }
+#top .form-group, #top label{ margin:0; }
+#car_no{ margin:0; padding:0; width:100%; border-top:1px solid #333; border-bottom: 1px solid #333; margin: 0; padding: 10px;}
+#car_no li{ float:left; width: 60px; margin: 0 20px 20px; font-size: 20px; font-family: arial; letter-spacing: 1px; }
+#car_no li:hover{ background-color: #eee; }
+#car_no:after{ display: block; clear: both; content: ""; }
+
+.form-group{ padding: 0 15px; }
+.form-check-input { margin-left: 0.125rem;}
+.best{ color: #c00; font-weight: 600; }
+.best1, .best2{ color: #a00; }
+.best3{ color: #500; }
+small{ display:block; font-size:12px; }
+</style>
+</head>
+<body>
+    <div id="top" class="d-sm-flex justify-content-start align-items-center flex-wrap form-inline2">
+        <div class="form-group d-flex align-items-center ">
+            <select id="num_type" class="sel_box form-control form-control-sm">
+              <option value="1" selected>81數理法則</option>
+              <option value="2">數字相加法則</option>
+              <option value="0">兩種都有</option>
+            </select>
+        </div>
+        <div class="form-group d-flex align-items-center ">
+            <label class="form-check-label" style="min-width:85px;">車牌號碼：</label>
+            <select id="num_len" class="sel_box form-control form-control-sm">
+              <option value="9999" selected>4位數字</option>
+              <option value="999">3位數字</option>
+            </select>
+        </div>
+        <div class="form-group form-check">
+            <label class="form-check-label" for="get_asc">數字小→大</label>  
+            <input type="checkbox" value="8" id="get_asc" class="sel_box form-check-input" checked>       
+            
+            <label class="form-check-label" for="get_dou" style="margin-left:35px;">雙重複數</label>
+            <input type="checkbox" value="8" id="get_dou" class="sel_box form-check-input">
+        </div>
+        <div class="form-group d-flex align-items-center ">
+          <label for="get_num" style="min-width:85px;">數字要有：</label>
+          <input type="text" value="" id="get_num" class="sel_box form-control form-control-sm" onkeyup="value=value.replace(/[^\d\s\*]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d\s\*]/g,''))" placeholder="輸入多數字，空格區隔"> 
+        </div>
+    </div>
+      
+    <ul id="car_no"></ul>
+      
+    <div id="show" class="text-center"></div>
+<script>
+
+$(function(){
+    showCarNo();
+    $('.sel_box').on('keyup change',function(){
+        showCarNo();
+    });
+});
+
+function showCarNo(){
+    var i;
+    var show = 0;
+    var num = 9999;  
+    num = ( $('#num_len').val() !=='' ) ? $('#num_len').val() : num ;
+    var num_type = $('#num_type').val();
+
+    $('#car_no li').remove();
+  
+    for (i = 1; i < parseInt(num); i++) {
+        var $li = $('<li>');
+        var cno = '000' + i;
+        cno = cno.substring(cno.length - num.length , cno.length);
+
+        //----//
+        if( cno.indexOf('4') >= 0 ) continue;
+
+        //-- 小到大--//
+        if($('#get_asc').prop('checked')){
+            var sn = cno.split(""); 
+            if(num.length == 3){
+                if( !((sn[0] <= sn[1]) && (sn[1] <= sn[2])) ){
+                    continue;
+                }
+            }else{
+                if( !((sn[0] <= sn[1]) && (sn[1] <= sn[2]) && (sn[2] <= sn[3])) ){
+                    continue;
+                }
+            }
+        }
+
+        //-- double --//
+        if($('#get_dou').prop('checked')){
+            if( !cno.match(/(00|11|22|33|55|66|77|88|99)/g) ) continue;
+        }
+    
+        //-- number --//
+        if( $('#get_num').val() !==''){
+            var gnm =  $('#get_num').val();
+            if( gnm.indexOf('*') == 0 ){
+                var gnm = gnm.replace('*','');
+                if( cno.substr(1,gnm.length) !== gnm )  continue;
+            }else if( gnm.indexOf('*') > 0 ){
+                var gnm = gnm.replace('*','');
+                if( cno.substr(0,gnm.length) !== gnm )  continue;
+            }else{
+                var v = getUnique( gnm.split(" "));
+                var chk = 0;
+                v.forEach(function(e) {          
+                    if( cno.indexOf(e) >= 0 ){
+                        chk += 1;
+                    }          
+                });
+                if(chk !== v.length)  continue;
+            }
+        }
+    
+        //-- show --//
+        var best = '';
+        if( num_type == 1 ){
+            if( good_no2(cno) == '吉' ){
+                best = 'best';
+            }else if( good_no2(cno).indexOf('吉') == 0 ){
+                best = 'best1';
+            }else if( good_no2(cno).indexOf('吉') >= 0 ){
+                best = 'best2';
+            }
+
+            go_no = '<span>' + cno + '</span><small>' + good_no2(cno) + '</small>';
+                  
+        }else if( num_type == 2 ){
+            best = ( good_no(cno) )  ? 'best' : ''; 
+            go_no = '<span>' + cno + '</span><small>' + (( good_no(cno) )  ? '吉' : '兇') + '</small>';            
+        
+        }else{
+            var lucky = '';            
+            if( good_no(cno) && good_no2(cno) == '吉' ){
+                best = 'best';
+                lucky = '大吉';
+            }else if( good_no(cno) || good_no2(cno) == '吉' ){
+                best = 'best1';
+                lucky = '吉';
+            }else if( good_no2(cno).indexOf('吉') >= 0 ){
+                best = 'best2';
+                lucky = '小吉';
+            }else{
+                best = '';
+                lucky = '兇';
+            }
+            go_no = '<span>' + cno + '</span><small>'+lucky+'</small>'; 
+        }   
+        $li.addClass(best).html(go_no).appendTo($('#car_no'));       
+        
+        show += 1;
+    }
+
+    $('#show').text(show+'筆');
+}
+
+function getUnique(array){
+    var uniqueArray = [];
+
+    for(i=0; i < array.length; i++){
+        if(uniqueArray.indexOf(array[i]) === -1) {
+            uniqueArray.push(array[i]);
+        }
+    }
+    return uniqueArray;
+}
+
+function good_no(num){
+    var n = num.split("");
+    var tol = 0;
+    for(i=0; i < n.length; i++){
+        tol += parseInt(n[i]);
+    }
+    return (tol==1 || tol==3 || tol==5 || tol==6 || tol==7 || tol==8 || tol==11 || tol==13 || tol==15 || tol==16 || tol==17 || tol==18 || tol==21 || tol==23 || tol==24 || tol==25 || tol==29 || tol==31 || tol==32 || tol==33 || tol==35) ? true:false;
+}
+
+function good_no2(num){
+    var n = Math.floor(num/80);
+    var NN = num - (80 * n);
+    var ge2 = ['',
+        '吉','兇','吉','兇','吉','吉','吉','吉','兇','兇',
+        '吉','兇','吉','兇','吉','吉','吉','吉','兇','兇',
+        '吉','兇','吉','吉','吉','兇','兇帶吉','吉','兇','吉',
+        '吉','吉','兇','吉','兇','吉','兇帶吉','吉','吉帶兇','吉',
+        '吉帶兇','吉帶兇','兇','吉','兇','吉','吉','兇','吉帶兇','吉帶兇',
+        '吉','吉帶兇','兇','吉帶兇','兇','吉','兇帶吉','兇','兇','吉帶兇',
+        '兇','吉','兇','吉','兇','吉','吉','兇','兇','吉',
+        '兇','吉','兇','吉帶兇','兇','吉帶兇','吉帶兇','兇','吉帶兇','吉'
+    ]
+    
+    if( NN == 0 ){
+        return ge2[80];
+    }else{
+        return ge2[NN];
+    }
+  
+}
+</script>
+</body>
+</html>
